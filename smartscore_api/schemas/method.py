@@ -1,0 +1,10 @@
+from enum import Enum
+
+
+class AvailableMethods(Enum):
+    GET_ALL = "GET_ALL"
+    POST_BATCH = "POST_BATCH"
+    DELETE_ALL = "DELETE_ALL"
+    DELETE_DATE = "DELETE_DATE"
+    POST_BACKFILL = "POST_BACKFILL"
+    GET_DATES_NO_SCORED = "GET_DATES_NO_SCORED"

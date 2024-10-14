@@ -1,0 +1,51 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation stack for the api.
+
+Resources:
+  # Lambda Functions
+  ApiFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: Api
+      Handler: event_handler.handle_request
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !ImportValue CodeBucketNameExport
+        S3Key: api_code.zip
+      Runtime: python3.12
+      Timeout: 10
+      MemorySize: 512
+      Environment:
+        Variables:
+          MONGO_URI: "mongodb+srv://proby:ZBPcD5ifL6Yl2oQw@smartscore.yfx5e.mongodb.net/?retryWrites=true&w=majority&appName=SmartScore"
+
+  # Lambda Log Groups
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /aws/lambda/Api
+      RetentionInDays: 1
+
+
+  # IAM Role for Lambda Execution
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/*:*"
