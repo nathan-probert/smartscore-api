@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "smartscore-api"
+version = "0.0.1"
+description = ""
+authors = ["Nathan Probert <nathanprobert@rogers.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pymongo = "^4.10.1"
+python-dotenv = "^1.0.1"
+aws-lambda-powertools = "^3.0.0"
+smartscore-info-client = {git = "https://github.com/nathan-probert/smartscore-info-client.git", rev = "v1.0.0"}
+pytz = "^2024.2"
+
+[tool.poetry.dev-dependencies]
+pre-commit = "^3.8.0"
+ruff = "^0.5.5"
+pytest = "^8.2.2"
+
+[tool.ruff]
+exclude = ["output"]
+line-length = 88
+indent-width = 2
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.pytest.ini_options]
+pythonpath = ["smartscore_api"]
+testpaths = ["tests/unit"]
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

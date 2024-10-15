@@ -1,14 +1,12 @@
 from smartscore_api.config import collection  # Import the collection from config.py
+# Assuming collection is already defined as the MongoDB collection
 
-# Define the list of specific dates to match
-date_list = ["2024-10-10", "2024-10-11", "2024-10-12", "2024-10-13"]
-
-# Update all documents where scored is 0 or 1 and date is in the specified date list, setting scored to None
+# MongoDB query to remove the specified fields from all documents
 collection.update_many(
-    {
-        "date": {"$in": date_list}
-    },
-    {"$set": {"scored": None}}
+  {},  # Empty filter to target all documents
+  {
+    "$unset": {"odds": "", "tims": "", "stat": "", "team_id": ""}
+  },  # Unset the specified fields
 )
 
-print("Set all scored fields to None for the specified dates.")
+print("Attributes 'odds', 'tims', and 'stat' removed from all documents.")
