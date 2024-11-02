@@ -48,7 +48,6 @@ def handle_request(event, context):
       "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
       "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
     }
-    logger.info(f"event: {event}")
 
     errors = SAVE_BATCH_SCHEMA.validate(event)
     if errors:

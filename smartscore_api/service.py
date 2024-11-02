@@ -22,6 +22,10 @@ def get_all_entries():
 def save_batch(event):
   date = event.get("date")
   logger.info(f"Saving batch for date: {date}")
+  if get_entries_from_date(date):
+    logger.info(f"Entries already exist for date: {date}")
+    return []
+
   players = [PlayerInfo(**player) for player in event.get("players")]
   teams = [TeamInfo(**team) for team in event.get("teams")]
 
