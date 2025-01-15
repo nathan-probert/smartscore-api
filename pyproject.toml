@@ -10,7 +10,7 @@ python = "^3.12"
 pymongo = "^4.10.1"
 python-dotenv = "^1.0.1"
 aws-lambda-powertools = "^3.0.0"
-smartscore-info-client = {git = "https://github.com/nathan-probert/smartscore-info-client.git", rev = "v1.1.0"}
+smartscore-info-client = {git = "https://github.com/nathan-probert/smartscore-info-client.git", rev = "v1.1.4"}
 pytz = "^2024.2"
 
 [tool.poetry.dev-dependencies]

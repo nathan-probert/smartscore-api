@@ -8,7 +8,7 @@ import sys
 sys.path.append('../smartscore_api')
 
 from event_handler import handle_request
-from smartscore_info_client.schemas.player_info import PlayerDbInfo
+from smartscore_info_client.schemas.db_player_info import PlayerDbInfo
 
 
 def get_players() -> list[PlayerDbInfo]:
@@ -66,15 +66,14 @@ def write_csv(players: list[PlayerDbInfo]):
                     player.name,
                     player.id,
                     player.team_name,
-                    -1, #bet
                     player.gpg,
                     player.five_gpg,
                     player.hgpg,
-                    -1, #ppg
-                    -1, #otpm
+                    player.hppg,
+                    player.otpm,
                     player.tgpg,
                     player.otga,
-                    -1, #home
+                    player.home,
                 ])
         print(f"Wrote {count} new players to data.csv")
 
@@ -82,4 +81,7 @@ def write_csv(players: list[PlayerDbInfo]):
 if __name__ == "__main__":
     players = get_players()
     write_csv(players)
+
+# data.csv header:
+# Date,Scored,Name,ID,Team,GPG,Last 5 GPG,HGPG,HPPG,OTPM,TGPG,OTGA,Home (1)
     
