@@ -27,7 +27,7 @@ generate_smartscore_api_stack() {
       --template-body file://"$TEMPLATE_FILE" \
       --parameters ParameterKey=ENV,ParameterValue="$ENV" \
                    ParameterKey=CodeVersionId,ParameterValue="$VERSION_ID" \
-                   ParameterKey=S3Key,ParameterValue="$Key" \
+                   ParameterKey=S3Key,ParameterValue="$KEY" \
       --capabilities CAPABILITY_NAMED_IAM
 
     echo "Waiting for CloudFormation stack update to complete..."
