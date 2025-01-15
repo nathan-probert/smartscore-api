@@ -13,6 +13,8 @@ TEMPLATE_FILE="./template.yaml"
 
 KEY="$STACK_NAME.zip"
 
+BUCKET_STACK_NAME="codeBucket"
+
 
 generate_smartscore_api_stack() {
   VERSION_ID=$1  # Get the version ID as a parameter
@@ -91,18 +93,9 @@ cp -r $SOURCE_DIR/* $OUTPUT_DIR/
 # generate the ZIP file
 generate_zip_file
 
-# create the CloudFormation stack for the S3 bucket
-S3_BUCKET_NAME=$(generate_bucket_stack 2>/dev/null)
-if [ $? -ne 0 ]; then
-  echo "Failed to create or retrieve S3 bucket name." >&2
-  exit 1
-else
-  echo "S3 bucket created: $S3_BUCKET_NAME"
-fi
-
 # upload the code to bucket stack
-aws s3 cp $OUTPUT_DIR/$KEY s3://$S3_BUCKET_NAME/$KEY
-VERSION_ID=$(aws s3api list-object-versions --bucket $S3_BUCKET_NAME --prefix $KEY --query "Versions[?IsLatest].VersionId" --output text)
+aws s3 cp $OUTPUT_DIR/$KEY s3://$BUCKET_STACK_NAME/$KEY
+VERSION_ID=$(aws s3api list-object-versions --bucket $BUCKET_STACK_NAME --prefix $KEY --query "Versions[?IsLatest].VersionId" --output text)
 
 # Output the version ID
 echo "Uploaded version ID: $VERSION_ID"
