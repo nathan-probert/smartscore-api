@@ -14,6 +14,7 @@ TEMPLATE_FILE="./template.yaml"
 KEY="$STACK_NAME.zip"
 
 BUCKET_STACK_NAME="codeBucket"
+BUCKET_TEMPLATE_FILE="./bucket_template.yaml"
 
 
 generate_smartscore_api_stack() {
@@ -76,6 +77,46 @@ generate_zip_file() {
   fi
 }
 
+generate_bucket_stack() {
+  echo "Creating or updating CloudFormation stack for S3 bucket..." >&2
+
+  # Check if the stack exists
+  if aws cloudformation describe-stacks --stack-name $BUCKET_STACK_NAME &>/dev/null; then
+    # Stack exists, update it
+    echo "Updating existing CloudFormation stack..." >&2
+    aws cloudformation update-stack \
+      --stack-name $BUCKET_STACK_NAME \
+      --template-body file://$BUCKET_TEMPLATE_FILE \
+      --capabilities CAPABILITY_NAMED_IAM
+  else
+    # Stack does not exist, create it
+    echo "Creating new CloudFormation stack..." >&2
+    aws cloudformation create-stack \
+      --stack-name $BUCKET_STACK_NAME \
+      --template-body file://$BUCKET_TEMPLATE_FILE \
+      --capabilities CAPABILITY_NAMED_IAM
+  fi
+
+  echo "Waiting for S3 bucket stack creation/updating to complete..." >&2
+  aws cloudformation wait stack-update-complete --stack-name $BUCKET_STACK_NAME || \
+  aws cloudformation wait stack-create-complete --stack-name $BUCKET_STACK_NAME
+
+  echo "S3 bucket stack creation/updating completed." >&2
+
+  S3_BUCKET_NAME=$(aws cloudformation describe-stacks \
+    --stack-name $BUCKET_STACK_NAME \
+    --query "Stacks[0].Outputs[?OutputKey=='CodeBucketName'].OutputValue" \
+    --output text)
+
+  if [ -z "$S3_BUCKET_NAME" ]; then
+    echo "Error: Unable to retrieve the S3 bucket name." >&2
+    return 1
+  else
+    echo "$S3_BUCKET_NAME"  # Only print the bucket name to stdout
+    return 0
+  fi
+}
+
 
 # main
 
@@ -93,9 +134,18 @@ cp -r $SOURCE_DIR/* $OUTPUT_DIR/
 # generate the ZIP file
 generate_zip_file
 
+# create the CloudFormation stack for the S3 bucket
+S3_BUCKET_NAME=$(generate_bucket_stack 2>/dev/null)
+if [ $? -ne 0 ]; then
+  echo "Failed to create or retrieve S3 bucket name." >&2
+  exit 1
+else
+  echo "S3 bucket created: $S3_BUCKET_NAME"
+fi
+
 # upload the code to bucket stack
-aws s3 cp $OUTPUT_DIR/$KEY s3://$BUCKET_STACK_NAME/$KEY
-VERSION_ID=$(aws s3api list-object-versions --bucket $BUCKET_STACK_NAME --prefix $KEY --query "Versions[?IsLatest].VersionId" --output text)
+aws s3 cp $OUTPUT_DIR/$KEY s3://$S3_BUCKET_NAME/$KEY
+VERSION_ID=$(aws s3api list-object-versions --bucket $S3_BUCKET_NAME --prefix $KEY --query "Versions[?IsLatest].VersionId" --output text)
 
 # Output the version ID
 echo "Uploaded version ID: $VERSION_ID"
