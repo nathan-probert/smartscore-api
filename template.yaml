@@ -33,7 +33,7 @@ Resources:
   ApiLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: /aws/lambda/Api
+      LogGroupName: !Sub "/aws/lambda/Api-${ENV}"
       RetentionInDays: 1
 
 
