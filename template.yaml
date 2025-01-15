@@ -18,7 +18,7 @@ Resources:
   ApiFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: Api
+      FunctionName: !Sub "Api-${ENV}"
       Handler: event_handler.handle_request
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
