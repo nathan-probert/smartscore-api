@@ -62,12 +62,12 @@ def save_batch(event):
 
 def delete_all_entries():
   result = collection.delete_many({})
-  print(f"Deleted {result.deleted_count} entries.")
   return result.deleted_count
 
 
 def get_dates_no_scored():
   dates = collection.distinct("date", {"scored": None})
+  print(dates)
   return dates
 
 
@@ -119,3 +119,14 @@ def get_entries_from_date(date):
 def delete_entries_from_date(date):
   result = collection.delete_many({"date": date})
   return result.deleted_count
+
+
+def delete_game(date, home, away):
+  deleted = 0
+
+  result = collection.delete_many({"date": date, "team_name": home})
+  deleted += result.deleted_count
+  result = collection.delete_many({"date": date, "team_name": away})
+  deleted += result.deleted_count
+
+  return deleted

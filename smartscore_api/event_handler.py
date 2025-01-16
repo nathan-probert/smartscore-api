@@ -12,6 +12,7 @@ from service import (
   get_date,
   get_entries_from_date,
   delete_entries_from_date,
+  delete_game,
 )
 from aws_lambda_powertools import Logger
 from bson.json_util import dumps
@@ -26,13 +27,14 @@ logger = Logger()
 def handle_request(event, context):
   if not (method := AvailableMethods(event.pop("method"))):
     return {"statusCode": 500, "body": "Method not defined"}
+
   event.pop("statusCode", None)
 
   if method == AvailableMethods.GET_ALL:
     response = get_all_entries()
     return {"statusCode": 200, "entries": dumps(response)}
 
-  elif method == AvailableMethods.POST_BATCH:
+  if method == AvailableMethods.POST_BATCH:
     all_players = [
       PlayerInfo(**player)
       for team in event.get("teams")
@@ -64,28 +66,34 @@ def handle_request(event, context):
       "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
     }
 
-  elif method == AvailableMethods.GET_DATES_NO_SCORED:
-    logger.info("Received GET_DATES_NO_SCORED request")
+  if method == AvailableMethods.GET_DATES_NO_SCORED:
     response = get_dates_no_scored()
-    logger.info(f"Found [{len(response)}] entries for dates with no scores")
     return {"statusCode": 200, "body": {"dates": dumps(response)}}
 
-  elif method == AvailableMethods.POST_BACKFILL:
+  if method == AvailableMethods.POST_BACKFILL:
     response = backfill_dates(event.get("data", {}))
     return {"statusCode": 200, "body": {"num_backfilled": dumps(response)}}
 
-  elif method == AvailableMethods.DELETE_ALL:
+  if method == AvailableMethods.DELETE_ALL:
     response = delete_all_entries()
     return {"statusCode": 200, "body": {"num_deleted": dumps(response)}}
 
-  elif method == AvailableMethods.GET_MIN_MAX:
+  if method == AvailableMethods.GET_MIN_MAX:
     response = get_min_max()
     return {"statusCode": 200, "body": response}
 
-  elif method == AvailableMethods.GET_DATE:
+  if method == AvailableMethods.GET_DATE:
     response = get_entries_from_date(event.get("date"))
     return {"statusCode": 200, "body": json.dumps(response)}
 
-  elif method == AvailableMethods.DELETE_DATE:
+  if method == AvailableMethods.DELETE_DATE:
     response = delete_entries_from_date(event.get("date"))
     return {"statusCode": 200, "body": {"num_deleted": dumps(response)}}
+
+  if method == AvailableMethods.DELETE_GAME:
+    response = delete_game(event.get("date"), event.get("home"), event.get("away"))
+    return {"statusCode": 200, "body": {"num_deleted": dumps(response)}}
+
+
+if __name__ == "__main__":
+  handle_request({"method": AvailableMethods.GET_DATES_NO_SCORED}, None)
