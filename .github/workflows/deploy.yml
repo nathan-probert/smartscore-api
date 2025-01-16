@@ -3,7 +3,7 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - automate-deployment
+      - add-delete-game-endpoint
 
 env:
   ENV: dev
