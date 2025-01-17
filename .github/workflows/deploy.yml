@@ -3,10 +3,10 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - automate-deployment
+      - main
 
 env:
-  ENV: dev
+  ENV: prod
 
 jobs:
   deploy:
@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.x  # Specify your project's Python version
+          python-version: 3.x
 
       - name: Install Poetry
         run: |
