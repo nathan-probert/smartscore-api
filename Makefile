@@ -1,11 +1,11 @@
 local-setup:
 	@echo Creating virtual environment
-	@poetry shell
+	@poetry env activate
 	@$(MAKE) install
 
 install:
-	@echo Installing dependencies
-	@poetry install --sync
+	@echo Installing all dev dependencies
+	@poetry install --with dev
 
 lint:
 	@echo Linting code
