@@ -1,29 +1,39 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation stack for the api.
 
+Parameters:
+  ENV:
+    Type: String
+    Description: The environment (e.g., dev, prod)
+    Default: dev
+  CodeVersionId:
+    Type: String
+    Description: "The version ID of the Lambda function code in S3."
+  S3Key:
+    Type: String
+    Description: "The key used by s3 to find the location of this code"
+
 Resources:
   # Lambda Functions
   ApiFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: Api
+      FunctionName: !Sub "Api-${ENV}"
       Handler: event_handler.handle_request
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: !ImportValue CodeBucketNameExport
-        S3Key: api_code.zip
+        S3Key: !Ref S3Key
+        S3ObjectVersion: !Ref CodeVersionId  # Use the passed version ID here
       Runtime: python3.12
       Timeout: 10
       MemorySize: 512
-      Environment:
-        Variables:
-          MONGO_URI: "mongodb+srv://proby:ZBPcD5ifL6Yl2oQw@smartscore.yfx5e.mongodb.net/?retryWrites=true&w=majority&appName=SmartScore"
 
   # Lambda Log Groups
   ApiLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: /aws/lambda/Api
+      LogGroupName: !Sub "/aws/lambda/Api-${ENV}"
       RetentionInDays: 1
 
 
