@@ -39,3 +39,4 @@ jobs:
         run: |
           chmod +x build_scripts/deploy.sh
           ./build_scripts/deploy.sh ${{ secrets.MONGO_URI }}
+          wait
