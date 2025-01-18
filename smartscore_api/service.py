@@ -67,7 +67,6 @@ def delete_all_entries():
 
 def get_dates_no_scored():
   dates = collection.distinct("date", {"scored": None})
-  print(dates)
   return dates
 
 
@@ -111,7 +110,7 @@ def get_min_max():
 
 
 def get_entries_from_date(date):
-  # Find entries with the given date, excluding the _id field
+  # Find entries with the given date, excluding the _id field in returned properties
   entries = list(collection.find({"date": date}, {"_id": 0}))
   return entries
 
@@ -122,6 +121,7 @@ def delete_entries_from_date(date):
 
 
 def delete_game(date, home, away):
+  logger.info(f"Deleting game for date: {date}, home: {home}, away: {away}")
   result = collection.delete_many({
     "date": date,
     "$or": [
@@ -129,4 +129,5 @@ def delete_game(date, home, away):
       {"team_name": away}
     ]
   })
+  logger.info(result)
   return result.deleted_count
