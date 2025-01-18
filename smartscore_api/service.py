@@ -62,7 +62,6 @@ def save_batch(event):
 
 def delete_all_entries():
   result = collection.delete_many({})
-  print(f"Deleted {result.deleted_count} entries.")
   return result.deleted_count
 
 
@@ -111,11 +110,24 @@ def get_min_max():
 
 
 def get_entries_from_date(date):
-  # Find entries with the given date, excluding the _id field
+  # Find entries with the given date, excluding the _id field in returned properties
   entries = list(collection.find({"date": date}, {"_id": 0}))
   return entries
 
 
 def delete_entries_from_date(date):
   result = collection.delete_many({"date": date})
+  return result.deleted_count
+
+
+def delete_game(date, home, away):
+  logger.info(f"Deleting game for date: {date}, home: {home}, away: {away}")
+  result = collection.delete_many({
+    "date": date,
+    "$or": [
+      {"team_name": home},
+      {"team_name": away}
+    ]
+  })
+  logger.info(result)
   return result.deleted_count
