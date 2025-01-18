@@ -96,4 +96,10 @@ def handle_request(event, context):
 
 
 if __name__ == "__main__":
-  handle_request({"method": AvailableMethods.GET_DATES_NO_SCORED}, None)
+  print(handle_request(
+    {
+      "method": AvailableMethods.DELETE_GAME,
+      "date": "2025-01-08",
+      "home": "LAK",
+      "away": "CGY",
+    }, None))

@@ -122,11 +122,11 @@ def delete_entries_from_date(date):
 
 
 def delete_game(date, home, away):
-  deleted = 0
-
-  result = collection.delete_many({"date": date, "team_name": home})
-  deleted += result.deleted_count
-  result = collection.delete_many({"date": date, "team_name": away})
-  deleted += result.deleted_count
-
-  return deleted
+  result = collection.delete_many({
+    "date": date,
+    "$or": [
+      {"team_name": home},
+      {"team_name": away}
+    ]
+  })
+  return result.deleted_count
