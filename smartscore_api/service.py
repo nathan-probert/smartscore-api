@@ -122,12 +122,8 @@ def delete_entries_from_date(date):
 
 def delete_game(date, home, away):
   logger.info(f"Deleting game for date: {date}, home: {home}, away: {away}")
-  result = collection.delete_many({
-    "date": date,
-    "$or": [
-      {"team_name": home},
-      {"team_name": away}
-    ]
-  })
+  result = collection.delete_many(
+    {"date": date, "$or": [{"team_name": home}, {"team_name": away}]}
+  )
   logger.info(result)
   return result.deleted_count
