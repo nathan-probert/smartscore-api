@@ -1,3 +1,7 @@
+import base64
+import gzip
+import json
+
 from config import collection
 from smartscore_info_client.schemas.player_info import PlayerInfo, PLAYER_INFO_SCHEMA
 from smartscore_info_client.schemas.team_info import TeamInfo, TEAM_INFO_SCHEMA
@@ -16,7 +20,22 @@ def get_date():
 
 def get_all_entries():
   entries = list(collection.find())
-  return entries
+
+  # not needed for the current implementation, saves space to remove here
+  for entry in entries:
+    entry.pop("_id")
+    entry.pop("id")
+    entry.pop("date")
+    entry.pop("team_name")
+    entry.pop("name")
+
+  # reduces size by around 6 times
+  # 6.8 mb -> 0.6 mb @ time of writing
+  json_data = json.dumps(entries)
+  compressed_data = gzip.compress(json_data.encode("utf-8"))
+  base64_data = base64.b64encode(compressed_data).decode("utf-8")
+
+  return base64_data
 
 
 def save_batch(event):

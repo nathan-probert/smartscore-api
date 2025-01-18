@@ -32,7 +32,15 @@ def handle_request(event, context):
 
   if method == AvailableMethods.GET_ALL:
     response = get_all_entries()
-    return {"statusCode": 200, "entries": dumps(response)}
+    return {
+      "statusCode": 200,
+      "entries": dumps(response),
+      "isBase64Encoded": True,
+      "headers": {
+        "Content-Encoding": "gzip",
+        "Content-Type": "application/json",
+      },
+    }
 
   if method == AvailableMethods.POST_BATCH:
     all_players = [
