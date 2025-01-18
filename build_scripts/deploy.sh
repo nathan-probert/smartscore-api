@@ -3,6 +3,12 @@
 # one of {dev, prod}
 ENV=${ENV:-dev}  # If ENV is not set, default to "dev"
 
+MONGO_URI=$1  # Accept MONGO_URI as a command-line argument
+if [ -z "$MONGO_URI" ]; then
+  echo "Error: MONGO_URI not provided. Usage: ./build_scripts/deploy.sh <MONGO_URI>"
+  exit 1
+fi
+
 MAX_ZIP_SIZE_MB=25
 
 SOURCE_DIR="smartscore_api"
@@ -28,6 +34,7 @@ generate_smartscore_api_stack() {
       --parameters ParameterKey=ENV,ParameterValue="$ENV" \
                    ParameterKey=CodeVersionId,ParameterValue="$VERSION_ID" \
                    ParameterKey=S3Key,ParameterValue="$KEY" \
+                   ParameterKey=MongoURI,ParameterValue="$MONGO_URI" \
       --capabilities CAPABILITY_NAMED_IAM
 
     echo "Waiting for CloudFormation stack update to complete..."
@@ -40,6 +47,7 @@ generate_smartscore_api_stack() {
       --parameters ParameterKey=ENV,ParameterValue="$ENV" \
                    ParameterKey=CodeVersionId,ParameterValue="$VERSION_ID" \
                    ParameterKey=S3Key,ParameterValue="$KEY" \
+                   ParameterKey=MongoURI,ParameterValue="$MONGO_URI" \
       --capabilities CAPABILITY_NAMED_IAM
 
     echo "Waiting for CloudFormation stack creation to complete..."
