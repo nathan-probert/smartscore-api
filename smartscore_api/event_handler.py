@@ -39,7 +39,7 @@ def handle_request(event, context):
       "headers": {
         "Content-Encoding": "gzip",
         "Content-Type": "application/json",
-      }
+      },
     }
 
   if method == AvailableMethods.POST_BATCH:
@@ -101,7 +101,3 @@ def handle_request(event, context):
   if method == AvailableMethods.DELETE_GAME:
     response = delete_game(event.get("date"), event.get("home"), event.get("away"))
     return {"statusCode": 200, "body": {"num_deleted": dumps(response)}}
-
-
-if __name__ == "__main__":
-  handle_request({"method": "GET_ALL"}, None)

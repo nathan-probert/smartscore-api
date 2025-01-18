@@ -20,7 +20,8 @@ def get_date():
 
 def get_all_entries():
   entries = list(collection.find())
-  print(entries[0])
+
+  # not needed for the current implementation, saves space to remove here
   for entry in entries:
     entry.pop("_id")
     entry.pop("id")
@@ -28,23 +29,11 @@ def get_all_entries():
     entry.pop("team_name")
     entry.pop("name")
 
-  # Size comparison
-  # json_data = json.dumps(entries).encode('utf-8')
-  #
-  # original_size = len(json_data)
-  # print(f"Original size: {original_size} bytes")
-  #
-  # compressed = gzip.compress(json_data)
-  # print(f"Gzip size:     {len(compressed)} bytes")
-  #
-  # base64_encoded = base64.b64encode(compressed)
-  # print(f"Base64 size:   {len(base64_encoded)} bytes")
-
-
-
+  # reduces size by around 6 times
+  # 6.8 mb -> 0.6 mb @ time of writing
   json_data = json.dumps(entries)
-  compressed_data = gzip.compress(json_data.encode('utf-8'))
-  base64_data = base64.b64encode(compressed_data).decode('utf-8')
+  compressed_data = gzip.compress(json_data.encode("utf-8"))
+  base64_data = base64.b64encode(compressed_data).decode("utf-8")
 
   return base64_data
 
