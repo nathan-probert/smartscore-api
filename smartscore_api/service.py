@@ -57,7 +57,7 @@ def save_batch(event):
     team_info_filtered = {
       key: value
       for key, value in team_info.items()
-      if key not in ("team_id", "opponent_id", "season", "team_abbr")
+      if key not in ("team_id", "opponent_id", "season", "team_name")
     }
     player_data = PLAYER_INFO_SCHEMA.dump(player)
     player_info_filtered = {
