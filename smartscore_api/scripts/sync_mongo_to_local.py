@@ -65,7 +65,7 @@ def write_csv(players: list[PlayerDbInfo]):
             int(player.scored) if player.scored else " ",
             player.name,
             player.id,
-            player.team_name,
+            player.team_abbr,
             -1,  # bet
             player.gpg,
             player.five_gpg,

@@ -23,11 +23,11 @@ def get_all_entries():
 
   # not needed for the current implementation, saves space to remove here
   for entry in entries:
-    entry.pop("_id")
-    entry.pop("id")
-    entry.pop("date")
-    entry.pop("team_name")
-    entry.pop("name")
+    entry.pop("_id", None)
+    entry.pop("id", None)
+    entry.pop("date", None)
+    entry.pop("team_abbr", None)
+    entry.pop("name", None)
 
   # reduces size by around 6 times
   # 6.8 mb -> 0.6 mb @ time of writing
