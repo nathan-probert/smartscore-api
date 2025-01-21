@@ -26,7 +26,6 @@ def get_all_entries():
     entry.pop("_id", None)
     entry.pop("id", None)
     entry.pop("team_abbr", None)
-    entry.pop("name", None)
 
   # reduces size by around 6 times
   # 6.8 mb -> 0.6 mb @ time of writing
@@ -34,7 +33,7 @@ def get_all_entries():
   compressed_data = gzip.compress(json_data.encode("utf-8"))
   base64_data = base64.b64encode(compressed_data).decode("utf-8")
 
-  logger.info(f"Size of data: {len(json_data)} -> {len(base64_data)}")
+  logger.info(f"Size of data: {len(json_data) / (1024 * 1024):.2f} MB -> {len(base64_data) / (1024 * 1024):.2f} MB")
 
   return base64_data
 
