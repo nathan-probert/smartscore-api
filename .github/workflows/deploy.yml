@@ -3,10 +3,10 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - remove-uses-of-team-name
+      - main
 
 env:
-  ENV: dev
+  ENV: prod
 
 jobs:
   deploy:
