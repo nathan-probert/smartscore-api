@@ -25,7 +25,6 @@ def get_all_entries():
   for entry in entries:
     entry.pop("_id", None)
     entry.pop("id", None)
-    entry.pop("date", None)
     entry.pop("team_abbr", None)
     entry.pop("name", None)
 
@@ -34,6 +33,8 @@ def get_all_entries():
   json_data = json.dumps(entries)
   compressed_data = gzip.compress(json_data.encode("utf-8"))
   base64_data = base64.b64encode(compressed_data).decode("utf-8")
+
+  logger.info(f"Size of data: {len(json_data)} -> {len(base64_data)}")
 
   return base64_data
 
