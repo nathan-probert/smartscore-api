@@ -4,15 +4,6 @@
 
 from smartscore_api.config import collection
 
-# Update documents where team_name starts with 'Montr'
-collection.update_many(
-  {"team_name": {"$regex": "^Montr"}},  # Match team_name starting with 'Montr'
-  {
-    "$set": {"team_name": "Montreal"}  # Set team_name to 'Montreal'
-  },
-)
-print("Updated team_name to 'Montreal' for all entries starting with 'Montr'.")
-
 
 # Update document where id is 8482116
 collection.update_many(

@@ -23,17 +23,17 @@ def get_all_entries():
 
   # not needed for the current implementation, saves space to remove here
   for entry in entries:
-    entry.pop("_id")
-    entry.pop("id")
-    entry.pop("date")
-    entry.pop("team_name")
-    entry.pop("name")
+    entry.pop("_id", None)
+    entry.pop("id", None)
+    entry.pop("team_abbr", None)
 
   # reduces size by around 6 times
   # 6.8 mb -> 0.6 mb @ time of writing
   json_data = json.dumps(entries)
   compressed_data = gzip.compress(json_data.encode("utf-8"))
   base64_data = base64.b64encode(compressed_data).decode("utf-8")
+
+  logger.info(f"Size of data: {len(json_data) / (1024 * 1024):.2f} MB -> {len(base64_data) / (1024 * 1024):.2f} MB")
 
   return base64_data
 
@@ -57,13 +57,13 @@ def save_batch(event):
     team_info_filtered = {
       key: value
       for key, value in team_info.items()
-      if key not in ("team_id", "opponent_id", "season", "team_abbr")
+      if key not in ("team_id", "opponent_id", "season", "team_name")
     }
     player_data = PLAYER_INFO_SCHEMA.dump(player)
     player_info_filtered = {
       key: value
       for key, value in player_data.items()
-      if key not in ("team_id", "odds", "stat", "tims")
+      if key not in ("team_id", "odds", "stat")
     }
 
     data.append(
