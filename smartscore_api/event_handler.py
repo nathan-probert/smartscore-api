@@ -43,21 +43,22 @@ def handle_request(event, context):
     }
 
   if method == AvailableMethods.POST_BATCH:
-    all_players = [
-      PlayerInfo(**player)
-      for team in event.get("teams")
-      for player in team.pop("players")
-    ]
-    all_teams = [TeamInfo(**team) for team in event.get("teams")]
+    if not event.get("players"):
+      all_players = [
+        PlayerInfo(**player)
+        for team in event.get("teams")
+        for player in team.pop("players")
+      ]
+      all_teams = [TeamInfo(**team) for team in event.get("teams")]
 
-    num_entries = len(all_players)
-    logger.info(f"Received POST_BATCH request for [{num_entries}] entries")
+      num_entries = len(all_players)
+      logger.info(f"Received POST_BATCH request for [{num_entries}] entries")
 
-    event = {
-      "date": get_date(),
-      "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
-      "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
-    }
+      event = {
+        "date": get_date(),
+        "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
+        "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
+      }
 
     errors = SAVE_BATCH_SCHEMA.validate(event)
     if errors:
