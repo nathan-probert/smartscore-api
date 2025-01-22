@@ -43,36 +43,44 @@ def handle_request(event, context):
     }
 
   if method == AvailableMethods.POST_BATCH:
-    all_players = [
-      PlayerInfo(**player)
-      for team in event.get("teams")
-      for player in team.pop("players")
-    ]
-    all_teams = [TeamInfo(**team) for team in event.get("teams")]
+    if event.get("teams"):
+      all_players = [
+        PlayerInfo(**player)
+        for team in event.get("teams")
+        for player in team.pop("players")
+      ]
+      all_teams = [TeamInfo(**team) for team in event.get("teams")]
 
-    num_entries = len(all_players)
-    logger.info(f"Received POST_BATCH request for [{num_entries}] entries")
+      num_entries = len(all_players)
+      logger.info(f"Received POST_BATCH request for [{num_entries}] entries")
+
+      event = {
+        "date": get_date(),
+        "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
+        "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
+      }
+
+      errors = SAVE_BATCH_SCHEMA.validate(event)
+      if errors:
+        logger.error(f"Validation failed: {errors}")
+        raise ValueError(f"Validation failed: {errors}")
+
+      validated_data = SAVE_BATCH_SCHEMA.load(event)
+
+      logger.info("Validated data, calling mongo now...")
+      save_batch(validated_data)
+      return {
+        "statusCode": 200,
+        "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
+        "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
+      }
 
     event = {
       "date": get_date(),
-      "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
-      "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
+      "players": PLAYER_INFO_SCHEMA.load(event.get("players")),
     }
-
-    errors = SAVE_BATCH_SCHEMA.validate(event)
-    if errors:
-      logger.error(f"Validation failed: {errors}")
-      raise ValueError(f"Validation failed: {errors}")
-
-    validated_data = SAVE_BATCH_SCHEMA.load(event)
-
-    logger.info("Validated data, calling mongo now...")
-    save_batch(validated_data)
-    return {
-      "statusCode": 200,
-      "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
-      "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
-    }
+    save_batch(event)
+    return {"statusCode": 200, "players": PLAYER_INFO_SCHEMA.dump(event.get("players"), many=True)}
 
   if method == AvailableMethods.GET_DATES_NO_SCORED:
     response = get_dates_no_scored()
