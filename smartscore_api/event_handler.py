@@ -43,7 +43,7 @@ def handle_request(event, context):
     }
 
   if method == AvailableMethods.POST_BATCH:
-    if not event.get("players"):
+    if event.get("teams"):
       all_players = [
         PlayerInfo(**player)
         for team in event.get("teams")
@@ -60,20 +60,27 @@ def handle_request(event, context):
         "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
       }
 
-    errors = SAVE_BATCH_SCHEMA.validate(event)
-    if errors:
-      logger.error(f"Validation failed: {errors}")
-      raise ValueError(f"Validation failed: {errors}")
+      errors = SAVE_BATCH_SCHEMA.validate(event)
+      if errors:
+        logger.error(f"Validation failed: {errors}")
+        raise ValueError(f"Validation failed: {errors}")
 
-    validated_data = SAVE_BATCH_SCHEMA.load(event)
+      validated_data = SAVE_BATCH_SCHEMA.load(event)
 
-    logger.info("Validated data, calling mongo now...")
-    save_batch(validated_data)
-    return {
-      "statusCode": 200,
-      "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
-      "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
+      logger.info("Validated data, calling mongo now...")
+      save_batch(validated_data)
+      return {
+        "statusCode": 200,
+        "teams": TEAM_INFO_SCHEMA.dump(all_teams, many=True),
+        "players": PLAYER_INFO_SCHEMA.dump(all_players, many=True),
+      }
+
+    event = {
+      "date": get_date(),
+      "players": PLAYER_INFO_SCHEMA.load(event.get("players")),
     }
+    save_batch(event)
+    return {"statusCode": 200, "players": PLAYER_INFO_SCHEMA.dump(event.get("players"), many=True)}
 
   if method == AvailableMethods.GET_DATES_NO_SCORED:
     response = get_dates_no_scored()
