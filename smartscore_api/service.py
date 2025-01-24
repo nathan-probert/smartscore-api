@@ -47,29 +47,16 @@ def save_batch(event):
     logger.info(f"Entries already exist for date: {date}")
     return []
 
-  players = [PlayerInfo(**player) for player in event.get("players")]
-  teams = [TeamInfo(**team) for team in event.get("teams")]
-
   data = []
-  team_data = {team.team_id: TEAM_INFO_SCHEMA.dump(team) for team in teams}
-
-  for player in players:
-    team_info = team_data[player.team_id]
-
-    team_info_filtered = {
-      key: value
-      for key, value in team_info.items()
-      if key not in ("team_id", "opponent_id", "season", "team_name")
-    }
-    player_data = PLAYER_INFO_SCHEMA.dump(player)
+  for player in event.get("players"):
     player_info_filtered = {
       key: value
-      for key, value in player_data.items()
-      if key not in ("team_id", "odds", "stat")
+      for key, value in player.items()
+      if key not in ("team_id", "odds", "stat", "opponent_id", "season", "team_name")
     }
 
     data.append(
-      {"date": date, "scored": None, **player_info_filtered, **team_info_filtered}
+      {"date": date, "scored": None, **player_info_filtered}
     )
 
   if not data:

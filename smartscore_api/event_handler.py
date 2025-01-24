@@ -39,11 +39,10 @@ def handle_request(event, context):
     }
 
   if method == AvailableMethods.POST_BATCH:
-    players = event.get("players")
-    save_batch(players)
+    save_batch(event)
     return {
       "statusCode": 200,
-      "players": dumps(players),
+      "players": dumps(event.get("players")),
     }
 
   if method == AvailableMethods.GET_DATES_NO_SCORED:
