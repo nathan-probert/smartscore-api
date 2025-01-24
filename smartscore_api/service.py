@@ -3,8 +3,6 @@ import gzip
 import json
 
 from config import collection
-from smartscore_info_client.schemas.player_info import PlayerInfo, PLAYER_INFO_SCHEMA
-from smartscore_info_client.schemas.team_info import TeamInfo, TEAM_INFO_SCHEMA
 from aws_lambda_powertools import Logger
 import pytz
 import datetime
@@ -55,9 +53,7 @@ def save_batch(event):
       if key not in ("team_id", "odds", "stat", "opponent_id", "season", "team_name")
     }
 
-    data.append(
-      {"date": date, "scored": None, **player_info_filtered}
-    )
+    data.append({"date": date, "scored": None, **player_info_filtered})
 
   if not data:
     logger.info("No items to save.")
