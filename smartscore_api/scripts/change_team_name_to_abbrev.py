@@ -107,8 +107,7 @@ def update_team_names():
       exit()
 
     collection.update_one(
-      {"_id": doc["_id"]},
-      {"$set": {"team_abbr": abbrev}, "$unset": {"team_name": ""}}
+      {"_id": doc["_id"]}, {"$set": {"team_abbr": abbrev}, "$unset": {"team_name": ""}}
     )
     count += 1
 

@@ -33,7 +33,9 @@ def get_all_entries():
   compressed_data = gzip.compress(json_data.encode("utf-8"))
   base64_data = base64.b64encode(compressed_data).decode("utf-8")
 
-  logger.info(f"Size of data: {len(json_data) / (1024 * 1024):.2f} MB -> {len(base64_data) / (1024 * 1024):.2f} MB")
+  logger.info(
+    f"Size of data: {len(json_data) / (1024 * 1024):.2f} MB -> {len(base64_data) / (1024 * 1024):.2f} MB"
+  )
 
   return base64_data
 
