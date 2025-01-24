@@ -3,10 +3,10 @@ name: Deploy to AWS
 on:
   push:
     branches:
-      - main
+      - adjust-params-for-tims
 
 env:
-  ENV: prod
+  ENV: dev
 
 jobs:
   deploy:
