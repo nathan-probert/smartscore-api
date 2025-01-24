@@ -42,7 +42,7 @@ def handle_request(event, context):
     save_batch(event)
     return {
       "statusCode": 200,
-      "players": dumps(event.get("players")),
+      "players": json.dumps(event.get("players")),
     }
 
   if method == AvailableMethods.GET_DATES_NO_SCORED:
