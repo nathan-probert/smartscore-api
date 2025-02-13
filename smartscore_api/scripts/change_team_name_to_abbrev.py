@@ -63,7 +63,7 @@ def update_team_names():
     otga = doc.get("otga")
 
     # team_name is already an abbreviation, skip
-    if len(team_name) <= 3:
+    if not team_name:
       skipped += 1
       continue
 
@@ -106,7 +106,9 @@ def update_team_names():
       print(doc)
       exit()
 
-    collection.update_one({"_id": doc["_id"]}, {"$set": {"team_name": abbrev}})
+    collection.update_one(
+      {"_id": doc["_id"]}, {"$set": {"team_abbr": abbrev}, "$unset": {"team_name": ""}}
+    )
     count += 1
 
 
