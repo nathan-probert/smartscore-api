@@ -6,12 +6,6 @@ Parameters:
     Type: String
     Description: The environment (e.g., dev, prod)
     Default: dev
-  CodeVersionId:
-    Type: String
-    Description: "The version ID of the Lambda function code in S3."
-  S3Key:
-    Type: String
-    Description: "The key used by s3 to find the location of this code"
   MongoURI:
     Type: String
     Description: "The URI of the MongoDB database"
@@ -25,9 +19,9 @@ Resources:
       Handler: event_handler.handle_request
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
-        S3Bucket: !ImportValue CodeBucketNameExport
-        S3Key: !Ref S3Key
-        S3ObjectVersion: !Ref CodeVersionId  # Use the passed version ID here
+        ZipFile: |
+          def lambda_handler(event, context):
+              return {"status": "Lambda function placeholder"}
       Runtime: python3.12
       Timeout: 10
       MemorySize: 512
