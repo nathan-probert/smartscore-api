@@ -9,6 +9,8 @@ if [ -z "$MONGO_URI" ]; then
   exit 1
 fi
 
+echo "MONGO_URI: $MONGO_URI"
+
 MAX_ZIP_SIZE_MB=25
 
 SOURCE_DIR="smartscore_api"
@@ -19,9 +21,9 @@ TEMPLATE_FILE="./template.yaml"
 
 KEY="$STACK_NAME.zip"
 
-BUCKET_STACK_NAME="codeBucket"
-BUCKET_TEMPLATE_FILE="./bucket_template.yaml"
-
+LAMBDA_FUNCTIONS=(
+  "Api-$ENV"
+)
 
 generate_smartscore_api_stack() {
   VERSION_ID=$1  # Get the version ID as a parameter
@@ -32,8 +34,6 @@ generate_smartscore_api_stack() {
       --stack-name "$STACK_NAME" \
       --template-body file://"$TEMPLATE_FILE" \
       --parameters ParameterKey=ENV,ParameterValue="$ENV" \
-                   ParameterKey=CodeVersionId,ParameterValue="$VERSION_ID" \
-                   ParameterKey=S3Key,ParameterValue="$KEY" \
                    ParameterKey=MongoURI,ParameterValue="$MONGO_URI" \
       --capabilities CAPABILITY_NAMED_IAM
 
@@ -45,8 +45,6 @@ generate_smartscore_api_stack() {
       --stack-name "$STACK_NAME" \
       --template-body file://"$TEMPLATE_FILE" \
       --parameters ParameterKey=ENV,ParameterValue="$ENV" \
-                   ParameterKey=CodeVersionId,ParameterValue="$VERSION_ID" \
-                   ParameterKey=S3Key,ParameterValue="$KEY" \
                    ParameterKey=MongoURI,ParameterValue="$MONGO_URI" \
       --capabilities CAPABILITY_NAMED_IAM
 
@@ -86,44 +84,22 @@ generate_zip_file() {
   fi
 }
 
-generate_bucket_stack() {
-  echo "Creating or updating CloudFormation stack for S3 bucket..." >&2
 
-  # Check if the stack exists
-  if aws cloudformation describe-stacks --stack-name $BUCKET_STACK_NAME &>/dev/null; then
-    # Stack exists, update it
-    echo "Updating existing CloudFormation stack..." >&2
-    aws cloudformation update-stack \
-      --stack-name $BUCKET_STACK_NAME \
-      --template-body file://$BUCKET_TEMPLATE_FILE \
-      --capabilities CAPABILITY_NAMED_IAM
-  else
-    # Stack does not exist, create it
-    echo "Creating new CloudFormation stack..." >&2
-    aws cloudformation create-stack \
-      --stack-name $BUCKET_STACK_NAME \
-      --template-body file://$BUCKET_TEMPLATE_FILE \
-      --capabilities CAPABILITY_NAMED_IAM
-  fi
+update_lambda_code() {
+  for FUNCTION in "${LAMBDA_FUNCTIONS[@]}"; do
+    echo "Updating Lambda function code: $FUNCTION..."
 
-  echo "Waiting for S3 bucket stack creation/updating to complete..." >&2
-  aws cloudformation wait stack-update-complete --stack-name $BUCKET_STACK_NAME || \
-  aws cloudformation wait stack-create-complete --stack-name $BUCKET_STACK_NAME
+    aws lambda update-function-code \
+      --function-name "$FUNCTION" \
+      --zip-file fileb://$OUTPUT_DIR/$KEY &>/dev/null  # Suppress all output
 
-  echo "S3 bucket stack creation/updating completed." >&2
+    if [ $? -ne 0 ]; then
+      echo "Error: Failed to update Lambda function code: $FUNCTION."
+      exit 1
+    fi
 
-  S3_BUCKET_NAME=$(aws cloudformation describe-stacks \
-    --stack-name $BUCKET_STACK_NAME \
-    --query "Stacks[0].Outputs[?OutputKey=='CodeBucketName'].OutputValue" \
-    --output text)
-
-  if [ -z "$S3_BUCKET_NAME" ]; then
-    echo "Error: Unable to retrieve the S3 bucket name." >&2
-    return 1
-  else
-    echo "$S3_BUCKET_NAME"  # Only print the bucket name to stdout
-    return 0
-  fi
+    echo "Lambda function code updated successfully: $FUNCTION."
+  done
 }
 
 
@@ -143,21 +119,8 @@ cp -r $SOURCE_DIR/* $OUTPUT_DIR/
 # generate the ZIP file
 generate_zip_file
 
-# create the CloudFormation stack for the S3 bucket
-S3_BUCKET_NAME=$(generate_bucket_stack 2>/dev/null)
-if [ $? -ne 0 ]; then
-  echo "Failed to create or retrieve S3 bucket name." >&2
-  exit 1
-else
-  echo "S3 bucket created: $S3_BUCKET_NAME"
-fi
-
-# upload the code to bucket stack
-aws s3 cp $OUTPUT_DIR/$KEY s3://$S3_BUCKET_NAME/$KEY
-VERSION_ID=$(aws s3api list-object-versions --bucket $S3_BUCKET_NAME --prefix $KEY --query "Versions[?IsLatest].VersionId" --output text)
-
-# Output the version ID
-echo "Uploaded version ID: $VERSION_ID"
-
 # create the CloudFormation stack for smartscore_api
 generate_smartscore_api_stack "$VERSION_ID"  # Pass the version ID to the function
+
+# update the Lambda function code
+update_lambda_code
