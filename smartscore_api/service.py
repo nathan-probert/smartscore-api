@@ -2,7 +2,7 @@ import base64
 import gzip
 import json
 
-from config import collection
+from config import collection, ENV
 from aws_lambda_powertools import Logger
 import pytz
 import datetime
@@ -39,6 +39,10 @@ def get_all_entries():
 
 
 def save_batch(event):
+  # only save if we are in prod
+  if ENV != "prod":
+    return []
+
   date = event.get("date")
   logger.info(f"Saving batch for date: {date}")
   if get_entries_from_date(date):

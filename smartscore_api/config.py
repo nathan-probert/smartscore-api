@@ -16,3 +16,4 @@ if not _MONGO_TOKEN:
   sys.exit(1)
 _client = MongoClient(_MONGO_TOKEN)
 collection = _client.get_database("players").get_collection("SmartScore")
+ENV = os.environ.get("ENV", "dev")
