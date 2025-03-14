@@ -1,83 +1,58 @@
 # to be ran from the smartscore_api directory
 # python scripts/sync_mongo_to_local.py
 
+import base64
+import gzip
 import json
 import csv
 
 import sys
 
-sys.path.append("../smartscore_api")
+sys.path.append("./smartscore_api")
 
 from event_handler import handle_request
-from smartscore_info_client.schemas.player_info import PlayerDbInfo
+from smartscore_info_client.schemas.player_info import PlayerInfo
 
 
-def get_players() -> list[PlayerDbInfo]:
+def get_players() -> list[PlayerInfo]:
   payload = {"method": "GET_ALL"}
   response = handle_request(payload, None)
-  players_json = json.loads(response.get("entries"))
-  players = [PlayerDbInfo(**player) for player in players_json]
+  data = unpack_response(response.get("entries"))
+  players = [PlayerInfo(**player) for player in data]
   return players
 
 
-def write_csv(players: list[PlayerDbInfo]):
-  # Create the player table with composite (id, date) keys
-  player_table = {(player.id, player.date): player for player in players}
+def unpack_response(body):
+    compressed_data = base64.b64decode(body)
+    decompressed_data = gzip.decompress(compressed_data).decode("utf-8")
+    original_data = json.loads(decompressed_data)
 
-  # Read the existing CSV file
-  with open("../lib/data.csv", "r") as f:
-    lines = list(csv.reader(f))
-    existing_dates = {line[0] for line in lines}
+    return original_data
 
-  # Open the file in write mode to update the 'scored' values
-  with open("../lib/data.csv", "w", newline="") as f:
-    writer = csv.writer(f)
 
-    # Loop through each line, update scored if needed, and write it back
-    for line in lines:
-      scored = line[1]
-
-      if not scored or scored == " " or scored == "null":
-        # Extract the (id, date) key from the CSV line
-        key = (int(line[3]), line[0])
-
-        # Find the 'scored' value from the player_table
-        player = player_table.get(key)
-
-        if player is not None:
-          # Update the 'scored' part of the line
-          line[1] = int(player.scored)
-
-      # Write the (possibly updated) line back to the CSV
-      writer.writerow(line)
-
-  with open("../lib/data.csv", "a", newline="") as f:
-    writer = csv.writer(f)
-
-    # Write the new players to the end of the file
-    count = 0
+# write all fields to csv
+def write_csv(players: list[PlayerInfo]):
+  with open("lib/data.csv", "w", newline="", encoding="utf-8") as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(["date", "name", "scored", "id", "gpg", "hgpg", "five_gpg", "hppg", "tgpg", "otga", "otshga", "home", "tims"])
     for player in players:
-      if player.date not in existing_dates:
-        count += 1
-        writer.writerow(
-          [
-            player.date,
-            int(player.scored) if player.scored else " ",
-            player.name,
-            player.id,
-            player.team_abbr,
-            -1,  # bet
-            player.gpg,
-            player.five_gpg,
-            player.hgpg,
-            -1,  # ppg
-            -1,  # otpm
-            player.tgpg,
-            player.otga,
-            -1,  # home
-          ]
-        )
-    print(f"Wrote {count} new players to data.csv")
+      writer.writerow(
+        [
+          player.date,
+          player.name,
+          player.scored,
+          player.id,
+          player.gpg,
+          player.hgpg,
+          player.five_gpg,
+          player.hppg,
+          player.tgpg,
+          player.otga,
+          player.otshga,
+          player.is_home,
+          player.tims,
+        ]
+      )
 
 
 if __name__ == "__main__":
