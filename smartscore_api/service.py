@@ -39,10 +39,6 @@ def get_all_entries():
 
 
 def save_batch(event):
-  # only save if we are in prod
-  if ENV != "prod":
-    return []
-
   date = event.get("date")
   logger.info(f"Saving batch for date: {date}")
   if get_entries_from_date(date):
