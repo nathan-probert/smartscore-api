@@ -1,7 +1,17 @@
+
 import { hello } from "./handlers/hello";
+import { requireAuth, unauthorized } from "./auth";
+
 
 export async function route(req: Request): Promise<Response> {
   const url = new URL(req.url);
+
+  // Require authentication for all routes except /health
+  if (url.pathname !== "/health") {
+    if (!requireAuth(req)) {
+      return unauthorized();
+    }
+  }
 
   if (req.method === "GET" && url.pathname === "/") {
     return hello();
