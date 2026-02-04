@@ -9,10 +9,6 @@ export function getApiKey(): string {
     : (globalThis as Record<string, unknown>).CLOUDFLARE_API_TOKEN as string;
 }
 
-export function unauthorized(): Response {
-  return new Response("Unauthorized", { status: 401 });
-}
-
 export function getAuthToken(req: Request): string | null {
   const auth = req.headers.get("Authorization");
   if (!auth) return null;
