@@ -6,7 +6,7 @@ declare const CLOUDFLARE_API_TOKEN: string;
 export function getApiKey(): string {
   return typeof CLOUDFLARE_API_TOKEN !== "undefined"
     ? CLOUDFLARE_API_TOKEN
-    : (globalThis as any).CLOUDFLARE_API_TOKEN;
+    : (globalThis as Record<string, unknown>).CLOUDFLARE_API_TOKEN as string;
 }
 
 export function unauthorized(): Response {
