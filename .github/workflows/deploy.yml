@@ -107,6 +107,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Set Worker secret
+        run: echo "$CLOUDFLARE_API_TOKEN" | npx wrangler secret put CLOUDFLARE_API_TOKEN --env $ENV
+
       - name: Deploy Worker
         run: |
           if [[ "$ENV" == "prod" ]]; then
