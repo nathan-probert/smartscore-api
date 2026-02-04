@@ -3,10 +3,14 @@
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "lint": "eslint . --ext .ts",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "wrangler": "^3.0.0",
-    "typescript": "^5.4.0"
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "typescript": "^5.4.0",
+    "vitest": "^0.34.0",
+    "wrangler": "^3.0.0"
   }
 }
