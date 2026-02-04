@@ -1,12 +1,12 @@
 // src/auth.ts
 // Authentication middleware for Cloudflare Worker
 
-declare const CLOUDFLARE_API_TOKEN: string;
+declare const API_AUTH_TOKEN: string;
 
 export function getApiKey(): string {
-  return typeof CLOUDFLARE_API_TOKEN !== "undefined"
-    ? CLOUDFLARE_API_TOKEN
-    : (globalThis as Record<string, unknown>).CLOUDFLARE_API_TOKEN as string;
+  return typeof API_AUTH_TOKEN !== "undefined"
+    ? API_AUTH_TOKEN
+    : (globalThis as Record<string, unknown>).API_AUTH_TOKEN as string;
 }
 
 export function getAuthToken(req: Request): string | null {

@@ -108,8 +108,10 @@ jobs:
         run: npm ci
 
       - name: Set Worker secret
-        run: echo "$CLOUDFLARE_API_TOKEN" | npx wrangler secret put CLOUDFLARE_API_TOKEN --env $ENV
-
+        run: echo "$API_AUTH_TOKEN" | npx wrangler secret put API_AUTH_TOKEN --env $ENV
+        env:
+          API_AUTH_TOKEN: ${{ secrets.API_AUTH_TOKEN }}
+          
       - name: Deploy Worker
         run: |
           if [[ "$ENV" == "prod" ]]; then
