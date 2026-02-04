@@ -21,24 +21,16 @@ jobs:
         with:
           node-version: 20
 
-      - name: Cache node modules
+      - name: Cache npm cache
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: ~/.npm
+          key: npm-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
-            node-modules-${{ runner.os }}-
+            npm-cache-${{ runner.os }}-
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-build
-          path: |
-            node_modules
-          retention-days: 1
 
   lint:
     needs: setup
@@ -51,9 +43,16 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/download-artifact@v4
+      - name: Cache npm cache
+        uses: actions/cache@v4
         with:
-          name: node-build
+          path: ~/.npm
+          key: npm-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-cache-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run lint
         run: npm run lint
@@ -69,9 +68,16 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/download-artifact@v4
+      - name: Cache npm cache
+        uses: actions/cache@v4
         with:
-          name: node-build
+          path: ~/.npm
+          key: npm-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            npm-cache-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run tests
         run: npm test
