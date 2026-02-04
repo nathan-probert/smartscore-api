@@ -1,0 +1,110 @@
+name: Lint, Test, and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    if: always()
+    outputs:
+      node-version: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-build
+          path: |
+            node_modules
+          retention-days: 1
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    if: always() && needs.setup.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-build
+
+      - name: Run lint
+        run: npm run lint
+
+  test:
+    needs: setup
+    runs-on: ubuntu-latest
+    if: always() && needs.setup.result == 'success'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: node-build
+
+      - name: Run tests
+        run: npm test
+
+  deploy:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    if: |
+      needs.lint.result == 'success' && needs.test.result == 'success' && (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'pull_request' &&
+         contains(github.event.pull_request.labels.*.name, 'deploy'))
+      )
+    env:
+      ENV: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Worker
+        run: |
+          if [[ "$ENV" == "prod" ]]; then
+            npx wrangler deploy --env prod
+          else
+            npx wrangler deploy --env dev
+          fi

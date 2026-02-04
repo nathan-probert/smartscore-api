@@ -1,0 +1,9 @@
+name = "smartscore-api"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+
+[env.dev]
+name = "smartscore-api-dev"
+
+[env.prod]
+name = "smartscore-api-prod"
