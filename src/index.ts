@@ -1,14 +1,9 @@
 
 import { route } from "./router";
-
-// Expose API_AUTH_TOKEN from environment
-declare const API_AUTH_TOKEN: string;
-if (typeof API_AUTH_TOKEN !== "undefined") {
-  (globalThis as Record<string, unknown>).API_AUTH_TOKEN = API_AUTH_TOKEN;
-}
+import type { Env } from "./env";
 
 export default {
-  async fetch(req: Request): Promise<Response> {
+  async fetch(req: Request, _env: Env, _ctx: ExecutionContext): Promise<Response> {
     try {
       return await route(req);
     } catch (err) {
