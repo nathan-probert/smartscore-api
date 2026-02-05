@@ -1,7 +1,7 @@
 
-import { hello } from "./handlers/hello";
-
-import { requireAuth } from "./auth";
+import { hello, health, notFound } from "./handlers";
+import { requireAuth, unauthorized } from "./auth";
+import { StatusCodes } from "http-status-codes";
 
 // CORS configuration
 const ALLOWED_ORIGINS = [
@@ -29,7 +29,7 @@ export async function route(req: Request): Promise<Response> {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
-      status: 204,
+      status: StatusCodes.NO_CONTENT,
       headers: getCorsHeaders(origin),
     });
   }
@@ -37,31 +37,17 @@ export async function route(req: Request): Promise<Response> {
   // Require authentication for all routes except /health
   if (url.pathname !== "/health") {
     if (!requireAuth(req)) {
-      return new Response("Unauthorized", {
-        status: 401,
-        headers: getCorsHeaders(origin),
-      });
+      return unauthorized(origin, getCorsHeaders);
     }
   }
 
   if (req.method === "GET" && url.pathname === "/") {
-    const res = hello();
-    const corsHeaders = getCorsHeaders(origin);
-    return new Response(await res.text(), {
-      status: res.status,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/plain",
-      },
-    });
+    return hello(origin, getCorsHeaders);
   }
 
   if (req.method === "GET" && url.pathname === "/health") {
-    return new Response("ok", { status: 200 });
+    return health(origin, getCorsHeaders);
   }
 
-  return new Response("Not Found", {
-    status: 404,
-    headers: getCorsHeaders(origin),
-  });
+  return notFound(origin, getCorsHeaders);
 }
