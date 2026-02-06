@@ -1,5 +1,5 @@
 
-import { hello, health, notFound, getPlayersForDate, deleteGameHandler } from "./handlers";
+import { hello, health, notFound, getPlayersForDate, deleteGameHandler, getUnscoredDates } from "./handlers";
 import { requireAuth, unauthorized } from "./auth";
 import { StatusCodes } from "http-status-codes";
 import type { Env } from "./env";
@@ -68,6 +68,16 @@ export async function route(req: Request, env?: Env): Promise<Response> {
       });
     }
     return deleteGameHandler(req, env, origin, getCorsHeaders);
+  }
+
+  if (req.method === "GET" && url.pathname === "/unscored-dates") {
+    if (!env) {
+      return new Response("Server configuration error", {
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        headers: getCorsHeaders(origin),
+      });
+    }
+    return getUnscoredDates(req, env, origin, getCorsHeaders);
   }
 
   return notFound(origin, getCorsHeaders);

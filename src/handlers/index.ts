@@ -4,3 +4,4 @@ export { doThing } from "./doThing";
 export { notFound } from "./notFound";
 export { getPlayersForDate } from "./get_players_for_date";
 export { deleteGameHandler } from "./delete_game";
+export { getUnscoredDates } from "./get_unscored_dates";
