@@ -9,6 +9,7 @@
     "script": "tsx",
     "get-players": "tsx scripts/get-players.ts",
     "delete-game": "tsx scripts/delete-game.ts",
+    "upload-players": "tsx scripts/upload-players.ts",
     "copy-collection": "tsx scripts/copy-collection.ts",
     "health-check": "tsx scripts/health-check.ts",
     "test-hello": "tsx scripts/test-hello.ts"

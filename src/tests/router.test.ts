@@ -91,6 +91,21 @@ describe('Router', () => {
       expect(response.status).toBe(404);
       expect(await response.text()).toBe('Not Found');
     });
+
+    it('should route POST /players to uploadPlayersHandler', async () => {
+      const req = new Request('https://api.example.com/players', {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer test-secret-token',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ players: [] }),
+      });
+      const response = await route(req);
+      // Should get 500 because env is not provided in router test context
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe('Server configuration error');
+    });
   });
 
   describe('CORS', () => {
