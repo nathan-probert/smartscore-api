@@ -1,7 +1,8 @@
 
-import { hello, health, notFound } from "./handlers";
+import { hello, health, notFound, getPlayersForDate } from "./handlers";
 import { requireAuth, unauthorized } from "./auth";
 import { StatusCodes } from "http-status-codes";
+import type { Env } from "./env";
 
 // CORS configuration
 const ALLOWED_ORIGINS = [
@@ -22,7 +23,7 @@ function getCorsHeaders(origin: string | null): HeadersInit {
   return headers;
 }
 
-export async function route(req: Request): Promise<Response> {
+export async function route(req: Request, env?: Env): Promise<Response> {
   const url = new URL(req.url);
   const origin = req.headers.get("Origin");
 
@@ -47,6 +48,16 @@ export async function route(req: Request): Promise<Response> {
 
   if (req.method === "GET" && url.pathname === "/health") {
     return health(origin, getCorsHeaders);
+  }
+
+  if (req.method === "GET" && url.pathname === "/players") {
+    if (!env) {
+      return new Response("Server configuration error", {
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        headers: getCorsHeaders(origin),
+      });
+    }
+    return getPlayersForDate(req, env, origin, getCorsHeaders);
   }
 
   return notFound(origin, getCorsHeaders);
