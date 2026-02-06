@@ -111,6 +111,16 @@ jobs:
         run: echo "$API_AUTH_TOKEN" | npx wrangler secret put API_AUTH_TOKEN --env $ENV
         env:
           API_AUTH_TOKEN: ${{ secrets.API_AUTH_TOKEN }}
+
+      - name: Set MongoDB URI secret
+        run: echo "$MONGODB_URI" | npx wrangler secret put MONGODB_URI --env $ENV
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+
+      - name: Set MongoDB Database secret
+        run: echo "$MONGODB_DATABASE" | npx wrangler secret put MONGODB_DATABASE --env $ENV
+        env:
+          MONGODB_DATABASE: ${{ secrets.MONGODB_DATABASE }}
           
       - name: Deploy Worker
         run: |

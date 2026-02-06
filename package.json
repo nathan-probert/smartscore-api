@@ -5,16 +5,28 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "lint": "eslint . --ext .ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "script": "tsx",
+    "get-players": "tsx scripts/get-players.ts",
+    "get-all-players": "tsx scripts/get-all-players.ts",
+    "delete-game": "tsx scripts/delete-game.ts",
+    "upload-players": "tsx scripts/upload-players.ts",
+    "copy-collection": "tsx scripts/copy-collection.ts",
+    "health-check": "tsx scripts/health-check.ts",
+    "test-hello": "tsx scripts/test-hello.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260205.0",
+    "@types/node": "^25.2.1",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "dotenv": "^17.2.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
-    "wrangler": "^4.62.0"
+    "wrangler": "^4.63.0"
   },
   "dependencies": {
-    "http-status-codes": "^2.3.0"
+    "http-status-codes": "^2.3.0",
+    "mongodb": "^7.1.0"
   }
 }

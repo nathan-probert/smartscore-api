@@ -20,7 +20,7 @@ describe('Router', () => {
       const response = await route(req);
       expect(response.status).toBe(204);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://smartscore.nathanprobert.ca');
-      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET,POST,OPTIONS');
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET,POST,DELETE,OPTIONS');
     });
 
     it('should return wildcard CORS for requests without Origin', async () => {
@@ -90,6 +90,34 @@ describe('Router', () => {
       const response = await route(req);
       expect(response.status).toBe(404);
       expect(await response.text()).toBe('Not Found');
+    });
+
+    it('should route POST /players to uploadPlayersHandler', async () => {
+      const req = new Request('https://api.example.com/players', {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer test-secret-token',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ players: [] }),
+      });
+      const response = await route(req);
+      // Should get 500 because env is not provided in router test context
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe('Server configuration error');
+    });
+
+    it('should route GET /all-players to getAllPlayers handler', async () => {
+      const req = new Request('https://api.example.com/all-players', {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer test-secret-token',
+        },
+      });
+      const response = await route(req);
+      // Should get 500 because env is not provided in router test context
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe('Server configuration error');
     });
   });
 
