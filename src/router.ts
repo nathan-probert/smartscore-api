@@ -1,5 +1,5 @@
 
-import { hello, health, notFound, getPlayersForDate } from "./handlers";
+import { hello, health, notFound, getPlayersForDate, deleteGameHandler } from "./handlers";
 import { requireAuth, unauthorized } from "./auth";
 import { StatusCodes } from "http-status-codes";
 import type { Env } from "./env";
@@ -12,7 +12,7 @@ const ALLOWED_ORIGINS = [
 
 function getCorsHeaders(origin: string | null): HeadersInit {
   const headers: HeadersInit = {
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS",
     "Access-Control-Allow-Headers": "Authorization,Content-Type",
   };
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
@@ -58,6 +58,16 @@ export async function route(req: Request, env?: Env): Promise<Response> {
       });
     }
     return getPlayersForDate(req, env, origin, getCorsHeaders);
+  }
+
+  if (req.method === "DELETE" && url.pathname === "/game") {
+    if (!env) {
+      return new Response("Server configuration error", {
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        headers: getCorsHeaders(origin),
+      });
+    }
+    return deleteGameHandler(req, env, origin, getCorsHeaders);
   }
 
   return notFound(origin, getCorsHeaders);

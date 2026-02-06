@@ -59,17 +59,18 @@ describe('MongoDB Utilities', () => {
   describe('getPlayersCollection', () => {
     it('should return the SmartScore collection from players database', async () => {
       const client = await connectToMongoDB(mockEnv);
-      const collection = getPlayersCollection(client);
+      const collection = getPlayersCollection(client, mockEnv);
       
       expect(client.db).toHaveBeenCalledWith('players');
       expect(collection).toBeDefined();
     });
 
     it('should call db.collection with SmartScore', async () => {
-      const client = await connectToMongoDB(mockEnv);
+      const prodEnv = { ...mockEnv, ENVIRONMENT: 'prod' };
+      const client = await connectToMongoDB(prodEnv);
       const mockDb = client.db('players');
       
-      getPlayersCollection(client);
+      getPlayersCollection(client, prodEnv);
       
       expect(mockDb.collection).toHaveBeenCalledWith('SmartScore');
     });

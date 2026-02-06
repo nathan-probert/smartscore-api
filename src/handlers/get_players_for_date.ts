@@ -17,9 +17,10 @@ interface Player {
  */
 async function fetchPlayersForDate(
   client: MongoClient,
+  env: Env,
   date: string
 ): Promise<Player[]> {
-  const playersCollection = getPlayersCollection(client);
+  const playersCollection = getPlayersCollection(client, env);
   const players = await playersCollection.find({ date }).toArray();
   return players as unknown as Player[];
 }
@@ -56,7 +57,7 @@ export async function getPlayersForDate(
   try {
     // Query players using shared MongoDB utilities
     const players = await withMongoClient(env, (client) =>
-      fetchPlayersForDate(client, date)
+      fetchPlayersForDate(client, env, date)
     );
 
     return new Response(JSON.stringify({ date, players }), {

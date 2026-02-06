@@ -67,7 +67,7 @@ async function getPlayersForDate(date: string, env: string, token?: string) {
 
     if (response.ok) {
       console.log("\n✅ Success!\n");
-      console.log(JSON.stringify(data, null, 2));
+      console.log(JSON.stringify(data.players?.slice(0, 3), null, 2));
       console.log(`\n📊 Total players: ${data.players?.length || 0}`);
     } else {
       console.log("\n❌ Error:\n");

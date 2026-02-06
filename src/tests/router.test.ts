@@ -20,7 +20,7 @@ describe('Router', () => {
       const response = await route(req);
       expect(response.status).toBe(204);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('https://smartscore.nathanprobert.ca');
-      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET,POST,OPTIONS');
+      expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET,POST,DELETE,OPTIONS');
     });
 
     it('should return wildcard CORS for requests without Origin', async () => {

@@ -9,8 +9,8 @@ export const CONFIG = {
   
   // Base URLs for different environments
   urls: {
-    dev: "https://smartscore-api-dev.your-worker.workers.dev",
-    prod: "https://smartscore-api-prod.your-worker.workers.dev",
+    dev: "https://smartscore-api-dev.nathanprobert.workers.dev",
+    prod: "https://smartscore-api-prod.nathanprobert.workers.dev",
     local: "http://localhost:8787",
   },
 };

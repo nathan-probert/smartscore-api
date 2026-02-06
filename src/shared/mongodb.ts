@@ -13,9 +13,10 @@ export async function connectToMongoDB(env: Env): Promise<MongoClient> {
 /**
  * Gets the SmartScore players collection
  */
-export function getPlayersCollection(client: MongoClient): Collection {
+export function getPlayersCollection(client: MongoClient, env: Env): Collection {
   const db = client.db("players");
-  return db.collection("SmartScore");
+  const collection = env.ENVIRONMENT === "prod" ? "SmartScore" : "SmartScoreDev";
+  return db.collection(collection);
 }
 
 /**
