@@ -1,5 +1,5 @@
 
-import { hello, health, notFound, getPlayersForDate, deleteGameHandler, getUnscoredDates, backfillScoredHandler, uploadPlayersHandler } from "./handlers";
+import { hello, health, notFound, getPlayersForDate, getAllPlayers, deleteGameHandler, getUnscoredDates, backfillScoredHandler, uploadPlayersHandler } from "./handlers";
 import { requireAuth, unauthorized } from "./auth";
 import { StatusCodes } from "http-status-codes";
 import type { Env } from "./env";
@@ -58,6 +58,16 @@ export async function route(req: Request, env?: Env): Promise<Response> {
       });
     }
     return getPlayersForDate(req, env, origin, getCorsHeaders);
+  }
+
+  if (req.method === "GET" && url.pathname === "/all-players") {
+    if (!env) {
+      return new Response("Server configuration error", {
+        status: StatusCodes.INTERNAL_SERVER_ERROR,
+        headers: getCorsHeaders(origin),
+      });
+    }
+    return getAllPlayers(req, env, origin, getCorsHeaders);
   }
 
   if (req.method === "DELETE" && url.pathname === "/game") {

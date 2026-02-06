@@ -3,6 +3,7 @@ export { health } from "./health";
 export { doThing } from "./doThing";
 export { notFound } from "./notFound";
 export { getPlayersForDate } from "./get_players_for_date";
+export { getAllPlayers } from "./get_all_players";
 export { deleteGameHandler } from "./delete_game";
 export { getUnscoredDates } from "./get_unscored_dates";
 export { backfillScoredHandler } from "./backfill_scored";

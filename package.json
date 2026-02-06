@@ -8,6 +8,7 @@
     "test": "vitest run",
     "script": "tsx",
     "get-players": "tsx scripts/get-players.ts",
+    "get-all-players": "tsx scripts/get-all-players.ts",
     "delete-game": "tsx scripts/delete-game.ts",
     "upload-players": "tsx scripts/upload-players.ts",
     "copy-collection": "tsx scripts/copy-collection.ts",

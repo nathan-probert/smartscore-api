@@ -106,6 +106,19 @@ describe('Router', () => {
       expect(response.status).toBe(500);
       expect(await response.text()).toBe('Server configuration error');
     });
+
+    it('should route GET /all-players to getAllPlayers handler', async () => {
+      const req = new Request('https://api.example.com/all-players', {
+        method: 'GET',
+        headers: {
+          Authorization: 'Bearer test-secret-token',
+        },
+      });
+      const response = await route(req);
+      // Should get 500 because env is not provided in router test context
+      expect(response.status).toBe(500);
+      expect(await response.text()).toBe('Server configuration error');
+    });
   });
 
   describe('CORS', () => {
