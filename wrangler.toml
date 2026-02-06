@@ -1,6 +1,7 @@
 name = "smartscore-api"
 main = "src/index.ts"
-compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2026-01-31"
 
 [env.dev]
 name = "smartscore-api-dev"

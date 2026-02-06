@@ -1,7 +1,32 @@
 import { StatusCodes } from "http-status-codes";
-import { MongoClient } from "mongodb";
+import type { MongoClient } from "mongodb";
 import type { Env } from "../env";
+import {
+  withMongoClient,
+  getPlayersCollection,
+  validateDateParameter,
+} from "../shared";
 
+interface Player {
+  date: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Fetches players from the database for a specific date
+ */
+async function fetchPlayersForDate(
+  client: MongoClient,
+  date: string
+): Promise<Player[]> {
+  const playersCollection = getPlayersCollection(client);
+  const players = await playersCollection.find({ date }).toArray();
+  return players as unknown as Player[];
+}
+
+/**
+ * Handler for GET /players endpoint
+ */
 export async function getPlayersForDate(
   req: Request,
   env: Env,
@@ -10,11 +35,12 @@ export async function getPlayersForDate(
 ): Promise<Response> {
   const corsHeaders = getCorsHeaders(origin);
   const url = new URL(req.url);
-  const date = url.searchParams.get("date");
 
-  if (!date) {
+  // Validate date parameter
+  const validation = validateDateParameter(url);
+  if (!validation.valid) {
     return new Response(
-      JSON.stringify({ error: "Date parameter is required" }),
+      JSON.stringify({ error: validation.error }),
       {
         status: StatusCodes.BAD_REQUEST,
         headers: {
@@ -25,36 +51,13 @@ export async function getPlayersForDate(
     );
   }
 
-  // Validate date format (YYYY-MM-DD)
-  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateRegex.test(date)) {
-    return new Response(
-      JSON.stringify({ error: "Invalid date format. Expected YYYY-MM-DD" }),
-      {
-        status: StatusCodes.BAD_REQUEST,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-  }
-
-  let client: MongoClient | null = null;
+  const { date } = validation;
 
   try {
-    // Connect to MongoDB
-    client = new MongoClient(env.MONGODB_URI);
-    await client.connect();
-
-    const db = client.db(env.MONGODB_DATABASE);
-    const playersCollection = db.collection("players");
-
-    // Query players for the specified date, excluding _id field
-    const players = await playersCollection
-      .find({ date })
-      .project({ _id: 0 })
-      .toArray();
+    // Query players using shared MongoDB utilities
+    const players = await withMongoClient(env, (client) =>
+      fetchPlayersForDate(client, date)
+    );
 
     return new Response(JSON.stringify({ date, players }), {
       status: StatusCodes.OK,
@@ -75,10 +78,5 @@ export async function getPlayersForDate(
         },
       }
     );
-  } finally {
-    // Close the MongoDB connection
-    if (client) {
-      await client.close();
-    }
   }
 }
