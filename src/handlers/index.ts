@@ -7,4 +7,5 @@ export { getAllPlayers } from "./get_all_players";
 export { deleteGameHandler } from "./delete_game";
 export { getUnscoredDates } from "./get_unscored_dates";
 export { backfillScoredHandler } from "./backfill_scored";
+export { resetScoredHandler } from "./reset_scored";
 export { uploadPlayersHandler } from "./upload_players";
